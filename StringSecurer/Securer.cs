@@ -1,23 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 using System.Security;
 using System.Security.Cryptography;
-
+using System.Runtime.InteropServices;
 namespace StringSecurer
 {
-    class StringSecurer
+    public class Securer
     {
-        static byte[] entropy = System.Text.Encoding.Unicode.GetBytes("Salted, not stirred");
+        private static byte[] entropy = Encoding.Unicode.GetBytes("Salted, not stirred");
 
-        public static string EncryptString(System.Security.SecureString input)
+        public static string EncryptString(SecureString input)
         {
-            byte[] encryptedData = System.Security.Cryptography.ProtectedData.Protect(
-                System.Text.Encoding.Unicode.GetBytes(ToInsecureString(input)),
+            byte[] encryptedData = ProtectedData.Protect(
+                Encoding.Unicode.GetBytes(ToInsecureString(input)),
                 entropy,
-                System.Security.Cryptography.DataProtectionScope.CurrentUser);
+                DataProtectionScope.CurrentUser);
             return Convert.ToBase64String(encryptedData);
         }
 
@@ -25,11 +23,11 @@ namespace StringSecurer
         {
             try
             {
-                byte[] decryptedData = System.Security.Cryptography.ProtectedData.Unprotect(
+                byte[] decryptedData = ProtectedData.Unprotect(
                     Convert.FromBase64String(encryptedData),
                     entropy,
-                    System.Security.Cryptography.DataProtectionScope.CurrentUser);
-                return ToSecureString(System.Text.Encoding.Unicode.GetString(decryptedData));
+                    DataProtectionScope.CurrentUser);
+                return ToSecureString(Encoding.Unicode.GetString(decryptedData));
             }
             catch
             {
@@ -51,14 +49,14 @@ namespace StringSecurer
         public static string ToInsecureString(SecureString input)
         {
             string returnValue = string.Empty;
-            IntPtr ptr = System.Runtime.InteropServices.Marshal.SecureStringToBSTR(input);
+            IntPtr ptr = Marshal.SecureStringToBSTR(input);
             try
             {
-                returnValue = System.Runtime.InteropServices.Marshal.PtrToStringBSTR(ptr);
+                returnValue = Marshal.PtrToStringBSTR(ptr);
             }
             finally
             {
-                System.Runtime.InteropServices.Marshal.ZeroFreeBSTR(ptr);
+                Marshal.ZeroFreeBSTR(ptr);
             }
             return returnValue;
         }
